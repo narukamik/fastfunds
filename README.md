@@ -1,28 +1,27 @@
-# FastFunds
+### FastFunds
 
-FastFunds is a tiny banking-style API built in Go (Gin). It lets you:
-- Create an account with an initial balance
-- Fetch an account balance by ID
-- Submit a transaction that moves money from one account to another
+FastFunds is a minimalist banking API built with Go + Gin.
 
-It comes equipped with unit tests, a Postgres database, Docker Compose setup, and example SQL to create and seed the database automatically.
+## Main Features
+
+- Money handled with precision: Values stored as BIGINT (pennies/cents) in Postgres — no floating-point mess!
+- Hassle-free deploy: One command with Docker Compose, database auto-initialized and seeded.
+- Ready for devs: Swagger docs out of the box on port 8080, example requests and unit tests included.
 
 ## Endpoints
-- POST `/accounts`
-- GET `/accounts/:account_id`
-- POST `/transactions`
 
-## Quick start
-Prerequisites:
-- Docker Desktop (Windows/macOS) or Docker Engine + Docker Compose (Linux)
+- POST /accounts
+- GET /accounts/:account_id
+- POST /transactions
 
-Run everything:
+## Run prerequisites
+
+- Docker Desktop (Windows/macOS) or Docker Engine + Docker Compose (Linux) installed
+
+## How to run?
+
 ```bash
 docker compose up --build
-```
-- API's docs: http://localhost:8080/swagger/index.html
-- Postgres: localhost:5432 (user: `postgres`, password: `postgres`, db: `fastfunds`)
-
-##Notes:
-- On first startup, Postgres runs `db/schema.sql` automatically.
-- Monetary values are handled as pennies and stored as BIGINT to preserve precision.
+````
+Swagger: http://localhost:8080/swagger/index.html
+Postgres: localhost:5432 (postgres/postgres, banco: fastfunds)
