@@ -1,0 +1,113 @@
+basePath: /
+definitions:
+  models.AccountView:
+    properties:
+      account_id:
+        type: integer
+      current_balance:
+        type: string
+    type: object
+  models.CreateAccountRequest:
+    properties:
+      account_id:
+        type: integer
+      initial_balance:
+        type: string
+    type: object
+  models.TransactionRequest:
+    properties:
+      amount:
+        type: string
+      destination_account_id:
+        type: integer
+      source_account_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: FastFunds API server
+  title: FastFunds API
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create account payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create account
+      tags:
+      - accounts
+  /accounts/{account_id}:
+    get:
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AccountView'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get account information by ID
+      tags:
+      - accounts
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transaction payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Submit transaction
+      tags:
+      - transactions
+swagger: "2.0"

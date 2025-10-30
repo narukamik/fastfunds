@@ -1,0 +1,19 @@
+.git
+.gitignore
+**/*.md
+**/*.log
+**/.idea
+**/.vscode
+**/.DS_Store
+bin/
+dist/
+tmp/
+server.exe
+
+# Go artifacts
+*.test
+*.out
+coverage*
+
+pgdata/
+
