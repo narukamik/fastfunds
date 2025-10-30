@@ -24,5 +24,5 @@ docker compose up --build
 - Postgres: localhost:5432 (user: `postgres`, password: `postgres`, db: `fastfunds`)
 
 ##Notes:
-- On first startup, Postgres runs `db/schema.sql` and `db/seed.sql` automatically.
+- On first startup, Postgres runs `db/schema.sql` automatically.
 - Monetary values are handled as pennies and stored as BIGINT to preserve precision.
