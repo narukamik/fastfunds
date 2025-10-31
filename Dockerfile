@@ -8,8 +8,13 @@ RUN go mod download && go mod verify
 COPY docs/ docs/
 COPY internal/ internal/
 
+
 # Ensures that Swagger documentation is always updated
-RUN go install github.com/swaggo/swag/cmd/swag@latest && swag init
+# Use for local dev if you feel like it
+# RUN go install github.com/swaggo/swag/cmd/swag@latest && swag init
+
+# Run all tests before building the binary. Fail the build if any test fails.
+RUN go test ./...
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o fastfunds-api main.go
 

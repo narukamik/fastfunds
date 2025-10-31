@@ -14,17 +14,53 @@ func NewTransactionService(
 	accountRepo repository.AccountRepository,
 	transactionRepo repository.TransactionRepository,
 ) *TransactionService {
-	return &TransactionService{
+	s := &TransactionService{
 		db:              db,
 		accountRepo:     accountRepo,
 		transactionRepo: transactionRepo,
+		money:           util.DefaultMoneyConverter{},
 	}
+	s.beginFn = func() (*sql.Tx, error) { return s.db.Begin() }
+	s.rollbackFn = func(tx *sql.Tx) error { return tx.Rollback() }
+	s.commitFn = func(tx *sql.Tx) error { return tx.Commit() }
+	return s
+}
+
+// NewTransactionServiceWithDeps allows injecting MoneyConverter for testing.
+// NewTransactionServiceWithDeps allows injecting MoneyConverter and transaction functions for testing.
+func NewTransactionServiceWithDeps(
+	db *sql.DB,
+	accountRepo repository.AccountRepository,
+	transactionRepo repository.TransactionRepository,
+	money util.MoneyConverter,
+	opts ...func(*TransactionService),
+) *TransactionService {
+	if money == nil {
+		money = util.DefaultMoneyConverter{}
+	}
+	s := &TransactionService{
+		db:              db,
+		accountRepo:     accountRepo,
+		transactionRepo: transactionRepo,
+		money:           money,
+	}
+	s.beginFn = func() (*sql.Tx, error) { return s.db.Begin() }
+	s.rollbackFn = func(tx *sql.Tx) error { return tx.Rollback() }
+	s.commitFn = func(tx *sql.Tx) error { return tx.Commit() }
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
 type TransactionService struct {
 	db              *sql.DB
 	accountRepo     repository.AccountRepository
 	transactionRepo repository.TransactionRepository
+	money           util.MoneyConverter
+	beginFn         func() (*sql.Tx, error)
+	rollbackFn      func(*sql.Tx) error
+	commitFn        func(*sql.Tx) error
 }
 
 func (s *TransactionService) ProcessTransaction(req *models.TransactionRequest) error {
@@ -42,19 +78,22 @@ func (s *TransactionService) ProcessTransaction(req *models.TransactionRequest) 
 	}
 
 	// Validate and convert amount to pennies
-	amountPennies, err := util.DecimalStringToPennies(req.Amount)
+	amountPennies, err := s.money.DecimalStringToPennies(req.Amount)
 	if err != nil || amountPennies <= 0 {
 		return errors.New("invalid amount format")
 	}
 
 	// Start DB transaction
-	tx, err := s.db.Begin()
+	tx, err := s.beginFn()
 
 	if err != nil {
 		return errors.New("couldn't start DB transaction")
 	}
+	if tx == nil {
+		return errors.New("couldn't start DB transaction")
+	}
 
-	defer tx.Rollback()
+	defer s.rollbackFn(tx)
 
 	// Get source account
 	sourceAccount, err := s.accountRepo.SelectTx(tx, req.SourceAccountID)
@@ -102,7 +141,7 @@ func (s *TransactionService) ProcessTransaction(req *models.TransactionRequest) 
 		return errors.New("transaction creation failed")
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = s.commitFn(tx); err != nil {
 		return errors.New("couldn't commit db transaction")
 	}
 

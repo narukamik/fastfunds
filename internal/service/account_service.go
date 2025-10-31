@@ -10,11 +10,24 @@ import (
 func NewAccountService(accountRepo repository.AccountRepository) *AccountService {
 	return &AccountService{
 		accountRepo: accountRepo,
+		money:       util.DefaultMoneyConverter{},
+	}
+}
+
+// NewAccountServiceWithDeps allows injecting a MoneyConverter for testing.
+func NewAccountServiceWithDeps(accountRepo repository.AccountRepository, money util.MoneyConverter) *AccountService {
+	if money == nil {
+		money = util.DefaultMoneyConverter{}
+	}
+	return &AccountService{
+		accountRepo: accountRepo,
+		money:       money,
 	}
 }
 
 type AccountService struct {
 	accountRepo repository.AccountRepository
+	money       util.MoneyConverter
 }
 
 func (s *AccountService) CreateAccount(req *models.CreateAccountRequest) error {
@@ -26,7 +39,7 @@ func (s *AccountService) CreateAccount(req *models.CreateAccountRequest) error {
 		return errors.New("initial balance is required")
 	}
 
-	pennies, err := util.DecimalStringToPennies(req.InitialBalance)
+	pennies, err := s.money.DecimalStringToPennies(req.InitialBalance)
 	if err != nil {
 		return errors.New("invalid balance format")
 	}
@@ -60,7 +73,7 @@ func (s *AccountService) GetAccount(accountID int) (*models.AccountView, error) 
 
 	accountView := &models.AccountView{
 		AccountID:      account.AccountID,
-		CurrentBalance: util.PenniesToDecimalString(account.CurrentBalance),
+		CurrentBalance: s.money.PenniesToDecimalString(account.CurrentBalance),
 	}
 
 	return accountView, nil

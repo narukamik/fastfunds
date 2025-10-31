@@ -9,14 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewAccountHandler(accountService *service.AccountService) *AccountHandler {
+func NewAccountHandler(accountService service.IAccountService) *AccountHandler {
 	return &AccountHandler{
-		accountService: accountService,
+		 accountService: accountService,
 	}
 }
 
 type AccountHandler struct {
-	accountService *service.AccountService
+	accountService service.IAccountService
 }
 
 // CreateAccount godoc

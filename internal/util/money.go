@@ -32,6 +32,10 @@ func DecimalStringToPennies(s string) (int64, error) {
 			return 0, errors.New("too many decimal places; max 2")
 		}
 	}
+	// If input is just a dot, treat as invalid
+	if whole == "" && frac == "" {
+		return 0, errors.New("invalid format")
+	}
 	if whole == "" {
 		whole = "0"
 	}
