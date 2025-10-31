@@ -58,19 +58,19 @@ func (m *mockTransactionRepo) GetByAccountID(accountID int) ([]*models.Transacti
 	return nil, nil
 }
 
-type mockMoneyConverter struct {
+type transactionMockMoneyConverter struct {
 	decFn func(string) (int64, error)
 	fmtFn func(int64) string
 }
 
-func (m mockMoneyConverter) DecimalStringToPennies(s string) (int64, error) {
+func (m transactionMockMoneyConverter) DecimalStringToPennies(s string) (int64, error) {
 	if m.decFn != nil {
 		return m.decFn(s)
 	}
 	return 0, nil
 }
 
-func (m mockMoneyConverter) PenniesToDecimalString(p int64) string {
+func (m transactionMockMoneyConverter) PenniesToDecimalString(p int64) string {
 	if m.fmtFn != nil {
 		return m.fmtFn(p)
 	}
@@ -99,7 +99,7 @@ func TestProcessTransaction_Success(t *testing.T) {
 	transactionRepo := &mockTransactionRepo{
 		CreateTxFunc: func(tx *sql.Tx, transaction *models.Transaction) error { return nil },
 	}
-	money := &mockMoneyConverter{
+	money := &transactionMockMoneyConverter{
 		decFn: func(s string) (int64, error) { return 200, nil },
 		fmtFn: func(p int64) string { return "2.00" },
 	}
@@ -120,7 +120,7 @@ func TestProcessTransaction_Success(t *testing.T) {
 }
 
 func TestProcessTransaction_InvalidAmount(t *testing.T) {
-	money := &mockMoneyConverter{
+	money := &transactionMockMoneyConverter{
 		decFn: func(s string) (int64, error) { return 0, errors.New("bad format") },
 	}
 	ts := NewTransactionServiceWithDeps(&sql.DB{}, &mockAccountRepo{}, &mockTransactionRepo{}, money)
@@ -151,7 +151,7 @@ func TestProcessTransaction_InsufficientFunds(t *testing.T) {
 		},
 		UpdateTxFunc: func(tx *sql.Tx, account *models.Account) error { return nil },
 	}
-	money := &mockMoneyConverter{
+	money := &transactionMockMoneyConverter{
 		decFn: func(s string) (int64, error) { return 200, nil },
 	}
 	ts := NewTransactionServiceWithDeps(&sql.DB{}, accountRepo, &mockTransactionRepo{}, money)
@@ -170,7 +170,7 @@ func TestProcessTransaction_InsufficientFunds(t *testing.T) {
 }
 
 func TestProcessTransaction_SameAccount(t *testing.T) {
-	ts := NewTransactionServiceWithDeps(&sql.DB{}, &mockAccountRepo{}, &mockTransactionRepo{}, &mockMoneyConverter{})
+	ts := NewTransactionServiceWithDeps(&sql.DB{}, &mockAccountRepo{}, &mockTransactionRepo{}, &transactionMockMoneyConverter{})
 	setTxnFns(ts)
 
 	req := &models.TransactionRequest{
@@ -195,7 +195,7 @@ func TestProcessTransaction_SourceAccountNotFound(t *testing.T) {
 		},
 		UpdateTxFunc: func(tx *sql.Tx, account *models.Account) error { return nil },
 	}
-	ts := NewTransactionServiceWithDeps(&sql.DB{}, accountRepo, &mockTransactionRepo{}, &mockMoneyConverter{decFn: func(s string) (int64, error) { return 200, nil }})
+	ts := NewTransactionServiceWithDeps(&sql.DB{}, accountRepo, &mockTransactionRepo{}, &transactionMockMoneyConverter{decFn: func(s string) (int64, error) { return 200, nil }})
 	setTxnFns(ts)
 
 	req := &models.TransactionRequest{
@@ -220,7 +220,7 @@ func TestProcessTransaction_DestinationAccountNotFound(t *testing.T) {
 		},
 		UpdateTxFunc: func(tx *sql.Tx, account *models.Account) error { return nil },
 	}
-	ts := NewTransactionServiceWithDeps(&sql.DB{}, accountRepo, &mockTransactionRepo{}, &mockMoneyConverter{decFn: func(s string) (int64, error) { return 200, nil }})
+	ts := NewTransactionServiceWithDeps(&sql.DB{}, accountRepo, &mockTransactionRepo{}, &transactionMockMoneyConverter{decFn: func(s string) (int64, error) { return 200, nil }})
 	setTxnFns(ts)
 
 	req := &models.TransactionRequest{

@@ -1,7 +1,6 @@
-package tests
+package util
 
 import (
-	"fastfunds/internal/util"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +28,7 @@ func TestDecimalStringToPennies(t *testing.T) {
 		{"leading_dot", ".5", 50, ""},
 	}
 
-	converter := util.DefaultMoneyConverter{}
+	converter := DefaultMoneyConverter{}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := converter.DecimalStringToPennies(tc.in)
@@ -59,7 +58,7 @@ func TestPenniesToDecimalString(t *testing.T) {
 		{100000, "1000.00"},
 	}
 
-	converter := util.DefaultMoneyConverter{}
+	converter := DefaultMoneyConverter{}
 	for _, tc := range cases {
 		got := converter.PenniesToDecimalString(tc.in)
 		assert.Equal(t, tc.want, got)

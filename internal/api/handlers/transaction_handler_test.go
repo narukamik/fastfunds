@@ -1,9 +1,8 @@
-package tests
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
-	"fastfunds/internal/api/handlers"
 	"fastfunds/internal/models"
 	"net/http"
 	"net/http/httptest"
@@ -40,7 +39,7 @@ func TestSubmitTransactionHandler(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockSvc := &mockTransactionService{processFn: func(req *models.TransactionRequest) error { return tc.mockErr }}
-			h := handlers.NewTransactionHandler(mockSvc)
+			h := NewTransactionHandler(mockSvc)
 			r := gin.Default()
 			r.POST("/transactions", h.SubmitTransaction)
 			var reqBody []byte

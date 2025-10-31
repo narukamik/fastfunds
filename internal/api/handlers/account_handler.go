@@ -11,7 +11,7 @@ import (
 
 func NewAccountHandler(accountService service.IAccountService) *AccountHandler {
 	return &AccountHandler{
-		 accountService: accountService,
+		accountService: accountService,
 	}
 }
 
@@ -32,7 +32,6 @@ type AccountHandler struct {
 func (h *AccountHandler) CreateAccount(c *gin.Context) {
 	var req models.CreateAccountRequest
 
-	// Parse JSON request body
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
 		return
@@ -42,7 +41,6 @@ func (h *AccountHandler) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	// Return empty response on success
 	c.Status(http.StatusCreated)
 }
 
@@ -59,7 +57,6 @@ func (h *AccountHandler) CreateAccount(c *gin.Context) {
 func (h *AccountHandler) GetAccount(c *gin.Context) {
 	accountIDStr := c.Param("account_id")
 
-	// Parse account ID from URL parameter
 	accountID, err := strconv.Atoi(accountIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid account_id format"})

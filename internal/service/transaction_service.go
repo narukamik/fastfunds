@@ -26,7 +26,6 @@ func NewTransactionService(
 	return s
 }
 
-// NewTransactionServiceWithDeps allows injecting MoneyConverter for testing.
 // NewTransactionServiceWithDeps allows injecting MoneyConverter and transaction functions for testing.
 func NewTransactionServiceWithDeps(
 	db *sql.DB,

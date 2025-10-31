@@ -1,10 +1,9 @@
-package tests
+package service
 
 import (
 	"database/sql"
 	"errors"
 	"fastfunds/internal/models"
-	"fastfunds/internal/service"
 	"fastfunds/internal/util"
 	"testing"
 
@@ -157,7 +156,7 @@ func TestCreateAccount(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			svc := service.NewAccountServiceWithDeps(tc.repo, tc.money)
+			svc := NewAccountServiceWithDeps(tc.repo, tc.money)
 			err := svc.CreateAccount(tc.req)
 			if tc.wantErr != "" {
 				assert.Error(t, err)
@@ -214,7 +213,7 @@ func TestGetAccount(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			svc := service.NewAccountServiceWithDeps(tc.repo, tc.money)
+			svc := NewAccountServiceWithDeps(tc.repo, tc.money)
 			got, err := svc.GetAccount(tc.id)
 			if tc.wantErr != "" {
 				assert.Nil(t, got)

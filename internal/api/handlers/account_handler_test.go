@@ -1,9 +1,8 @@
-package tests
+package handlers
 
 import (
 	"bytes"
 	"encoding/json"
-	"fastfunds/internal/api/handlers"
 	"fastfunds/internal/models"
 	"net/http"
 	"net/http/httptest"
@@ -47,7 +46,7 @@ func TestCreateAccountHandler(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockSvc := &mockAccountService{createFn: func(req *models.CreateAccountRequest) error { return tc.mockErr }}
-			h := handlers.NewAccountHandler(mockSvc)
+			h := NewAccountHandler(mockSvc)
 			r := gin.Default()
 			r.POST("/accounts", h.CreateAccount)
 			var reqBody []byte
@@ -90,7 +89,7 @@ func TestGetAccountHandler(t *testing.T) {
 				}
 				return tc.mockView, nil
 			}}
-			h := handlers.NewAccountHandler(mockSvc)
+			h := NewAccountHandler(mockSvc)
 			r := gin.Default()
 			r.GET("/accounts/:account_id", h.GetAccount)
 			w := httptest.NewRecorder()
